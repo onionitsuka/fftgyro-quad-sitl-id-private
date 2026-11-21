@@ -24,6 +24,7 @@ from scipy.optimize import least_squares
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from aerodynamics import instantaneous_data, correction
+from model_equations import DEFAULT_CONFIG, load_config
 
 G = 9.80665
 AXES = ("Fx", "Fy", "Fz", "Mx", "My", "Mz")
@@ -97,6 +98,24 @@ class Loads:
         if not self.identified:
             return physical
         return physical + self.residual(air, rate, rotor, rotor_dot)
+
+
+def validate_edited_terms(config: dict) -> None:
+    """Check every edited route with the actual evaluator before starting a run."""
+    if "term_overrides" not in config:
+        return
+    air, rate, rotor, rotor_dot = np.zeros(3), np.zeros(3), np.full(4, 400.), np.zeros(4)
+    for route, models in config["models"].items():
+        vehicle = Loads(config, True, route)
+        physical = vehicle.propulsion(rate, rotor, rotor_dot)
+        data = instantaneous_data(air, rate, rotor, rotor_dot, vehicle.cfg, physical)
+        for axis, model in models.items():
+            try:
+                value = correction(data, vehicle.cfg, axis, model)
+            except (ValueError, KeyError, IndexError, OverflowError) as error:
+                raise ValueError(f"Invalid term in {route}/{axis}: {error}") from error
+            if not np.isfinite(value):
+                raise ValueError(f"Nonfinite correction in {route}/{axis} at zero airspeed")
 
 
 # 2. 各モデル自身の釣合いから初期ホバー状態を求める
@@ -343,7 +362,8 @@ def plot(output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", type=Path, default=Path(__file__).with_name("model.json"))
+    parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    parser.add_argument("--terms", type=Path, help="書き出した項・係数CSVの編集版")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--target", type=float, help="前方目標速度[m/s]。既定3。")
     parser.add_argument("--dt", type=float, help="積分刻み[s]。既定0.005。")
@@ -353,7 +373,11 @@ def main():
     args = parser.parse_args()
     if args.plot_only:
         plot(args.output); return
-    config = json.loads(args.config.read_text())
+    try:
+        config, model_sha256 = load_config(args.config, args.terms)
+        validate_edited_terms(config)
+    except (OSError, ValueError, KeyError) as error:
+        parser.error(str(error))
     if args.route is not None: config["default_route"] = args.route
     if args.target is not None: config["scenario"]["target_m_s"] = args.target
     if args.dt is not None: config["scenario"]["dt_s"] = args.dt
@@ -368,6 +392,7 @@ def main():
     (args.output/"config.json").write_text(json.dumps(config, ensure_ascii=False, indent=2)+"\n")
     summary = dict(type="DETERMINISTIC_OFFLINE_SIMULATION", validation=False,
         rpm_source=config["simulation_rpm_source"], load_route=config["default_route"], code_sha256=sha(__file__),
+        model_sha256=model_sha256, term_overrides=config.get("term_overrides"),
         runtime=dict(python=sys.version, numpy=version("numpy"), scipy=version("scipy")), cases={})
     for identified, label in [(False, "existing"), (True, "identified")]:
         trace, metric = simulate(config, identified)

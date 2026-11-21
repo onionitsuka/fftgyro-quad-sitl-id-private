@@ -36,11 +36,14 @@ def setup(dev=False):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description='付録Cシミュレータ：初回導入・操縦・比較計算')
-    parser.add_argument('action', nargs='?', default='interactive', choices=['setup', 'interactive', 'batch', 'test', 'doctor'])
+    parser = argparse.ArgumentParser(description='付録Cシミュレータ：初回導入・操縦・比較計算・式の書き出し')
+    parser.add_argument('action', nargs='?', default='interactive', choices=['setup', 'interactive', 'batch', 'test', 'doctor', 'equations'])
     parser.add_argument('--dev', action='store_true', help='テスト用パッケージも導入（setup用）')
     args, extra = parser.parse_known_args(argv)
     os.environ.setdefault('MPLCONFIGDIR', str(ROOT / '.cache' / 'matplotlib'))
+    if args.action == 'equations':
+        execute([sys.executable, APP / 'model_equations.py', *extra], cwd=ROOT)
+        return 0
     if args.action == 'setup':
         setup(args.dev)
         return 0

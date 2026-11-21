@@ -30,10 +30,10 @@ TORQUE_LIMIT_NM = np.array([1.5, 1.5, .1])
 
 
 class Flight:
-    def __init__(self, model="identified", route="command_route", dynamics=None):
+    def __init__(self, model="identified", route="command_route", dynamics=None, *, model_config=None):
         if model not in ("existing", "identified") or route not in ("measured", "command_route"):
             raise ValueError("Unknown model or coefficient route")
-        self.config = json.loads((HERE / "model.json").read_text())
+        self.config, self.model_sha256 = model_config or sim.load_config(sim.DEFAULT_CONFIG)
         self.model, self.route = model, route
         self.dynamics = dynamics or sim.derivative
         self.vehicle = sim.Loads(self.config, model == "identified", route)
@@ -202,7 +202,7 @@ class Flight:
                     torque_saturated=self.torque_saturated, motor_saturated=self.motor_saturated,
                     status=self.status, model=self.model, route=self.route, control_mode=self.mode,
                     input_axes=self.inputs.tolist(), trim_error=self.trim_error,
-                    model_sha256=sim.sha(HERE/"model.json"))
+                    model_sha256=self.model_sha256)
 
     def log(self):
         self.rows.append(np.r_[self.t, self.x, self.rotor*60/(2*np.pi), self.command, self.wrench,
@@ -257,7 +257,7 @@ def serve(port=8765, open_browser=True, flight_factory=Flight, html_path=None, m
                                                  torque_limit_Nm=TORQUE_LIMIT_NM.tolist()),
                         backend=metadata or {"name": "Python rigid body"},
                         rpm_source="generated from command and voltage", validation=False,
-                        code_sha256={n:sim.sha(HERE/n) for n in ("interactive.py", "simulate.py", "aerodynamics.py", "interactive.html", "assets/app.js", "assets/style.css")}), indent=2))
+                        code_sha256={n:sim.sha(HERE/n) for n in ("interactive.py", "simulate.py", "aerodynamics.py", "model_equations.py", "interactive.html", "assets/app.js", "assets/style.css")}), indent=2))
                 else:
                     self.send("Not found", "text/plain", 404)
 
@@ -276,7 +276,7 @@ def serve(port=8765, open_browser=True, flight_factory=Flight, html_path=None, m
                     raise ValueError("Expected a JSON object")
                 with lock:
                     if self.path == "/reset":
-                        flight = flight_factory(data.get("model", "identified"), data.get("route", "command_route"))
+                        flight = flight_factory(data.get("model", "identified"), data.get("route", flight.route))
                         result = flight.snapshot()
                     elif self.path == "/step":
                         result = flight.advance(data)
@@ -305,5 +305,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--no-browser", action="store_true")
+    parser.add_argument("--config", type=Path, default=sim.DEFAULT_CONFIG)
+    parser.add_argument("--terms", type=Path, help="書き出した項・係数CSVの編集版")
     args = parser.parse_args()
-    serve(args.port, not args.no_browser)
+    try:
+        model_config = sim.load_config(args.config, args.terms)
+        sim.validate_edited_terms(model_config[0])
+        def flight_factory(model="identified", route=model_config[0]["default_route"]):
+            return Flight(model, route, model_config=model_config)
+        serve(args.port, not args.no_browser, flight_factory)
+    except (OSError, ValueError, KeyError) as error:
+        parser.error(str(error))

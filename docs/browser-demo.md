@@ -58,6 +58,7 @@ python3 run.py batch --route measured --output results/measured
 
 ## 困ったとき・開発
 
+- [モデルの式と係数の編集](model-equations.md)
 - [導入と起動のトラブル対応](troubleshooting.md)
 - [力学・制御・係数・出力の説明](../sim/appendix/README.md)
 - [コードの構成と検証](development.md)

@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | **まず飛ばして試す** | Mac・Windows・Linux、Python 3.11以上、キーボード | [ブラウザで操縦する](docs/browser-demo.md) |
 | **既存モデルと同定モデルを比較する** | Mac・Windows・Linux、Python 3.11以上 | [付録Cの比較図を作る](docs/browser-demo.md#付録cの比較図を作る) |
+| **モデルの式を取得・編集する** | 式の閲覧はブラウザで可。計算にはPython 3.11以上 | [式と編集方法](docs/model-equations.md) |
 | **付録のPX4閉ループで操縦する** | x86_64 Ubuntu、QGroundControl、箱庭＋UnityまたはGazebo | [箱庭・Gazebo版を導入する](docs/desktop-install.md) |
 
 ## まず試す
