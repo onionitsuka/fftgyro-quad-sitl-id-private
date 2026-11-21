@@ -1,12 +1,15 @@
 # 箱庭・Gazebo版の導入
 
-このリポジトリの主な導入先は **箱庭 + Unity + PX4** と **Gazebo + PX4** です。`run.py interactive` はPythonだけの補助デモであり、これらの代わりではありません。
+卒論の付録Cで説明したPX4閉ループを、箱庭またはGazeboで試す手順です。両方式ともQGroundControlでUSBプロポを使えます。
 
-## 実行するPC
+| 使う方式 | Ubuntuで用意するもの | 向いている用途 |
+| --- | --- | --- |
+| 箱庭 + Unity + PX4 | Unity Editor、QGroundControl | Unityでの操縦、水平速度推定アシスト |
+| Gazebo + PX4 | Gazebo Harmonic、QGroundControl | ネイティブGazeboでのモデル比較 |
 
-同梱のデスクトップ用コードは **x86_64のUbuntu（確認環境24.04）** 用です。Mac/WindowsにPythonを入れるだけではUnity・PX4・Gazebo版にはなりません。Mac/Windowsから利用する場合は、Ubuntu PCにこのリポジトリを取得して実行し、リモートデスクトップ等で画面を表示します。プロポはUbuntu PCに接続します。WindowsのWSL2やMacネイティブのGUI・USB転送は、このパッケージでは未検証です。
+**実行環境は x86_64 Ubuntu 24.04 です。** Mac・WindowsのPCから使う場合は、Ubuntu PCで実行し、必要に応じてリモートデスクトップで表示します。プロポは実行先のUbuntu PCに接続します。手元のMac・Windowsで手早く試す場合は、[Pythonのブラウザ版](browser-demo.md)を使えます。
 
-実験データ、過去の研究用フォルダ、研究室へのSSH接続は導入の必須条件ではありません。取得先の名前も固定していません。以下は `desktop.py` があるフォルダで実行します。
+[ZIPをダウンロード](https://github.com/onionitsuka/fftgyro-quad-sitl-id-private/archive/refs/heads/thesis-appendix-simulator.zip)して展開し、`desktop.py` のあるフォルダで以下のコマンドを実行します。
 
 ## 1. 共通の準備
 
@@ -57,17 +60,6 @@ python3 desktop.py launch hakoniwa --assist imu
 終了は起動端末でCtrl+C。Disconnectedのままなら終了後に同じlaunchを再実行します。QGCの校正は保持され、飛行状態は初期状態に戻ります。セッション記録は `.desktop-runtime/hakoniwa/sessions/` に残ります。
 
 アシストではPosition要求をOffboardへ切り替えます。操縦者が静止を確認して押す速度零点ボタンなど、詳細は [速度推定アシスト](../desktop/hakoniwa/launcher/VELOCITY-ASSIST.md) と [研究モデルの計算](../desktop/hakoniwa/launcher/RESEARCH-MODEL.md) を参照してください。機種依存の軸・ボタン割当は利用者の機器で確認します。
-
-### 既存の研究室環境を再利用する場合
-
-```sh
-python3 desktop.py setup hakoniwa \
-  --px4-root "$HOME/research/PX4-hakoniwa-official" \
-  --reuse-hakoniwa "$HOME/research/hakoniwa-desktop" \
-  --avatar-build "$HOME/research/hakoniwa-desktop/Build"
-```
-
-このパスは既存環境を再利用するときだけの例です。新しい導入先にソースを別checkoutし、検査済みアーカイブとビルド済みAvatarをコピーします。既存の操縦環境は変更しません。ライセンスを含む第三者バイナリはGitへ追加しないでください。
 
 ## 3. Gazebo + PX4
 

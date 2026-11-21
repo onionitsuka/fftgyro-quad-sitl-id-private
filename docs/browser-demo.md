@@ -5,16 +5,8 @@
 
 ## 1. 取得する
 
-[専用ブランチ](https://github.com/onionitsuka/fftgyro-quad-sitl-id-private/tree/thesis-appendix-simulator) の **Code → Download ZIP** から取得して展開してください。
-
-以降のコマンドは、展開先の **`run.py` があるフォルダ** で実行します。
-
-Gitを使う場合：
-
-```sh
-git clone --branch thesis-appendix-simulator --single-branch https://github.com/onionitsuka/fftgyro-quad-sitl-id-private.git
-cd fftgyro-quad-sitl-id-private
-```
+[ZIPをダウンロード](https://github.com/onionitsuka/fftgyro-quad-sitl-id-private/archive/refs/heads/thesis-appendix-simulator.zip)して展開します。
+以下のコマンドは、展開した `run.py` のあるフォルダで実行してください。
 
 ## 2. 補助デモを起動する
 
@@ -23,8 +15,6 @@ cd fftgyro-quad-sitl-id-private
 `python3 run.py interactive`（Windowsは `py -3 run.py interactive`）で起動します。OS用startファイルは箱庭版の入口です。
 
 初回はプロジェクト内に `.venv` を作り、必要なパッケージを導入します。システムのPython環境は変更しません。ブラウザが開かなければ **http://127.0.0.1:8765** を開いてください。起動したターミナルは開いたままにします。終了はターミナルで **Ctrl+C** です。
-
-コマンドからの起動は `python3 run.py`（Windowsは `py -3 run.py`）です。
 
 ## 3. 飛ばす・保存する
 
@@ -42,11 +32,18 @@ PSコントローラー／USBプロポは接続後にボタンを押し、「コ
 
 ## 付録Cの比較図を作る
 
-次の例はmacOS/Linuxです。Windowsは `python3` を `py -3` に置き換えます。
+論文の補助計算と同じく、共通の簡易制御器で荷重モデルを切り替え、速度・高度・Pitch・前方距離を比較します。
 
 ```sh
 python3 run.py batch --output results/example
 python3 run.py batch --output results/example --plot-only
+```
+
+Windows（PowerShell）では次の2行を実行します。
+
+```powershell
+py -3 run.py batch --output results/example
+py -3 run.py batch --output results/example --plot-only
 ```
 
 `results/example/comparison.png`（PDFも生成）で速度・高度・Pitch・前方距離を比較できます。`summary.json` の両モデルが `COMPLETED`、終了時刻が14.5秒なら既定例は完了です。途中終了した場合は同ファイルの理由を確認してください。`existing.csv` と `identified.csv` に時系列、`config.json` に使用した係数と設定を保存します。
@@ -71,4 +68,4 @@ python3 run.py setup --dev
 python3 run.py test -q
 ```
 
-このプログラムは論文モデルの動作例です。簡易制御器を用いており、PX4・箱庭のシミュレータや実飛行による性能検証とは異なります。研究用ブランチとは独立した履歴で管理し、実験データは含めていません。
+このプログラムは論文モデルの動作例です。簡易制御器を用いており、PX4・箱庭のシミュレータや実飛行による性能検証とは異なります。
