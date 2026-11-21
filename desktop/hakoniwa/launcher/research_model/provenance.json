@@ -1,0 +1,10 @@
+{
+  "source": "public/quadrotor-identification-simulation",
+  "snapshot_date": "2026-11-12",
+  "sha256": {
+    "model.json": "c4df11342538c6b67f00f6998e079362358b7770dd6da25430b68264f8ee0f34",
+    "simulate.py": "7b953c47b4e69148836213c37876ef574120e912b4c8373c03b757d245f0303e",
+    "aerodynamics.py": "d53e0225548634d5e6218ea9915906b6c329b3a01b712c451fa10a99b5f5e309"
+  },
+  "modified": false
+}

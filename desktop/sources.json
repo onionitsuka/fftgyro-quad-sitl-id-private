@@ -1,0 +1,9 @@
+{
+ "hakoniwa-core-pro":{"url":"https://github.com/hakoniwalab/hakoniwa-core-pro.git","revision":"722ce022201547eca00c7ab630392faa53f2a431"},
+ "hakoniwa-drone-core":{"url":"https://github.com/toppers/hakoniwa-drone-core.git","revision":"221afa40809c9edb476f88c71383a43c134d4b9d"},
+ "hakoniwa-unity-drone":{"url":"https://github.com/hakoniwalab/hakoniwa-unity-drone.git","revision":"50d94f27660733191e08f6c2a88898981330944f"},
+ "px4_hakoniwa":{"url":"https://github.com/PX4/PX4-Autopilot.git","revision":"a1726d316a941af9524f6279eb293a713d8fdcac"},
+ "px4_gazebo":{"url":"https://github.com/PX4/PX4-Autopilot.git","revision":"240908caea3278d89dab49e6d724dcbefc54556d"},
+ "runtime":{"url":"https://github.com/toppers/hakoniwa-drone-core/releases/download/v5.0.0/lnx.zip","sha256":"0cb0e271c107c0c031111d58eff934540f9e748ad6ca2cc5ec646f6a90e879fc"},
+ "unity":"6000.3.10f1"
+}
